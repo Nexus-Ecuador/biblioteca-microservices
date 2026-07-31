@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(
     "/api/users",
     createProxyMiddleware({
-        target: "http://localhost:3001",
+        target: process.env.USERS_URL,
         changeOrigin: true
     })
 );
@@ -24,7 +24,7 @@ app.use(
 app.use(
     "/api/books",
     createProxyMiddleware({
-        target: "http://localhost:3002",
+        target: process.env.BOOKS_URL,
         changeOrigin: true
     })
 );
@@ -34,13 +34,13 @@ app.use(
 app.use(
     "/api/prestamos",
     createProxyMiddleware({
-        target: "http://localhost:3003",
+        target: process.env.LOANS_URL,
         changeOrigin: true
     })
 );
 
 
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 app.listen(PORT,()=>{
     console.log(`API Gateway corriendo en puerto ${PORT}`);
