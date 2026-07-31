@@ -8,10 +8,9 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-
 model Usuario {
-  id        Int      @id @default(autoincrement())
-  nombre    String
-  correo    String   @unique
-  cedula    String   @unique
+  id      Int    @id @default(autoincrement())
+  nombre  String
+  correo  String @unique
+  cedula  String @unique
 }
