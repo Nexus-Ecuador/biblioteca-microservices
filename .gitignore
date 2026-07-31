@@ -9,3 +9,4 @@ build/
 .windsurf/
 
 *.log
+skills-lock.json
