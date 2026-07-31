@@ -8,7 +8,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-
 model Prestamo {
   id              Int       @id @default(autoincrement())
   usuarioId       Int
