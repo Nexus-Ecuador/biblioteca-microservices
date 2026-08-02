@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: users-service
+    rootDir: users-service
+    env: node
+    buildCommand: npm install && npx prisma generate && npx prisma db push
+    startCommand: npm start
+
+  - type: web
+    name: books-service
+    rootDir: books-service
+    env: node
+    buildCommand: npm install && npx prisma generate && npx prisma db push
+    startCommand: npm start
+
+  - type: web
+    name: loans-service
+    rootDir: loans-service
+    env: node
+    buildCommand: npm install && npx prisma generate && npx prisma db push
+    startCommand: npm start
+
+  - type: web
+    name: api-gateway
+    rootDir: api-gateway
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
