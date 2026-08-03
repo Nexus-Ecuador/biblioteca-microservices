@@ -9,11 +9,10 @@ datasource db {
 }
 
 model Usuario {
-  id        Int      @id @default(autoincrement())
+  id        Int    @id @default(autoincrement())
   nombre    String
-  correo    String   @unique
-  cedula    String   @unique
-  createdAt DateTime @default(now())
+  correo    String @unique
+  cedula    String @unique
   prestamos Prestamo[]
 }
 
