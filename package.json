@@ -1,0 +1,25 @@
+{
+  "name": "biblioteca-microservices",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nexus-Ecuador/biblioteca-microservices.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Nexus-Ecuador/biblioteca-microservices/issues"
+  },
+  "homepage": "https://github.com/Nexus-Ecuador/biblioteca-microservices#readme",
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "prisma": "^6.19.3"
+  }
+}
