@@ -9,7 +9,7 @@ exports.getLoans = async (req, res) => {
         });
         res.json(loans);
     } catch (error) {
-        console.error(error);
+        console.error("getLoans error:", error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -27,7 +27,7 @@ exports.getLoanById = async (req, res) => {
         }
         res.json(loan);
     } catch (error) {
-        console.error(error);
+        console.error("getLoanById error:", error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -52,7 +52,7 @@ exports.createLoan = async (req, res) => {
             });
         }
 
-        // ✅ Verificar usuario directamente con Prisma (sin axios)
+        // Verificar usuario existe
         const usuario = await prisma.usuario.findUnique({
             where: { id: uid }
         });
@@ -60,7 +60,7 @@ exports.createLoan = async (req, res) => {
             return res.status(404).json({ error: "Usuario no encontrado" });
         }
 
-        // ✅ Verificar libro directamente con Prisma (sin axios)
+        // Verificar libro existe
         const libro = await prisma.libro.findUnique({
             where: { id: lid }
         });
@@ -74,77 +74,11 @@ exports.createLoan = async (req, res) => {
             });
         }
 
-        // Registrar préstamo
+        // Crear préstamo
         const prestamo = await prisma.prestamo.create({
             data: { usuarioId: uid, libroId: lid },
             include: { usuario: true, libro: true }
         });
 
-        // ✅ Marcar libro como no disponible directamente con Prisma
-        await prisma.libro.update({
-            where: { id: lid },
-            data: { disponible: false }
-        });
-
-        res.status(201).json({
-            mensaje: "Préstamo realizado correctamente",
-            prestamo
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            error: error.message
-        });
-    }
-};
-
-// Devolver préstamo
-exports.updateLoan = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const prestamo = await prisma.prestamo.findUnique({
-            where: { id: Number(id) }
-        });
-
-        if (!prestamo) {
-            return res.status(404).json({ error: "Préstamo no encontrado" });
-        }
-
-        const actualizado = await prisma.prestamo.update({
-            where: { id: Number(id) },
-            data: {
-                estado: "DEVUELTO",
-                fechaDevolucion: new Date()
-            },
-            include: { usuario: true, libro: true }
-        });
-
-        // ✅ Liberar libro directamente con Prisma
-        await prisma.libro.update({
-            where: { id: prestamo.libroId },
-            data: { disponible: true }
-        });
-
-        res.json({
-            mensaje: "Libro devuelto correctamente",
-            prestamo: actualizado
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: error.message });
-    }
-};
-
-// Eliminar préstamo
-exports.deleteLoan = async (req, res) => {
-    try {
-        const { id } = req.params;
-        await prisma.prestamo.delete({
-            where: { id: Number(id) }
-        });
-        res.json({ mensaje: "Préstamo eliminado correctamente" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: error.message });
-    }
-};
+        // Marcar libro como no disponible
+       

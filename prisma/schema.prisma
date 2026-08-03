@@ -13,7 +13,7 @@ model Usuario {
   nombre    String
   correo    String   @unique
   cedula    String   @unique
-  createdAt DateTime @default(now())   // ✅ NUEVO
+  createdAt DateTime @default(now())
   prestamos Prestamo[]
 }
 
@@ -21,7 +21,7 @@ model Libro {
   id         Int     @id @default(autoincrement())
   titulo     String
   autor      String
-  isbn       String  @unique
+  isbn       String? @unique    // ✅ Opcional ahora
   categoria  String?
   disponible Boolean @default(true)
   prestamos  Prestamo[]
