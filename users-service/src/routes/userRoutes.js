@@ -4,8 +4,6 @@ const router = express.Router();
 
 const controller = require("../controllers/userController");
 
-// CRUD Usuarios
-
 router.get("/", controller.getUsers);
 
 router.get("/:id", controller.getUserById);
