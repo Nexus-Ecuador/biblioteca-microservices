@@ -1,8 +1,5 @@
+const prisma = require("../config/prisma");
 
-# Generar loanController.js bulletproof (sin include, sin dependencia de relaciones Prisma)
-loan_controller = '''const prisma = require("../config/prisma");
-
-// Helper: enriquecer préstamo con datos de usuario y libro
 async function enriquecerPrestamo(p) {
     const usuario = await prisma.usuario.findUnique({ where: { id: p.usuarioId } });
     const libro = await prisma.libro.findUnique({ where: { id: p.libroId } });
@@ -18,7 +15,6 @@ async function enriquecerPrestamo(p) {
     };
 }
 
-// Obtener todos los préstamos
 exports.getLoans = async (req, res) => {
     try {
         const raw = await prisma.prestamo.findMany({ orderBy: { id: "asc" } });
@@ -30,20 +26,17 @@ exports.getLoans = async (req, res) => {
     }
 };
 
-// Obtener préstamo por ID
 exports.getLoanById = async (req, res) => {
     try {
         const p = await prisma.prestamo.findUnique({ where: { id: Number(req.params.id) } });
         if (!p) return res.status(404).json({ error: "Préstamo no encontrado" });
-        const loan = await enriquecerPrestamo(p);
-        res.json(loan);
+        res.json(await enriquecerPrestamo(p));
     } catch (error) {
         console.error("getLoanById error:", error);
         res.status(500).json({ error: error.message });
     }
 };
 
-// Crear préstamo
 exports.createLoan = async (req, res) => {
     try {
         const { usuarioId, libroId } = req.body;
@@ -53,7 +46,7 @@ exports.createLoan = async (req, res) => {
         const uid = Number(usuarioId);
         const lid = Number(libroId);
         if (isNaN(uid) || isNaN(lid)) {
-            return res.status(400).json({ error: "usuarioId y libroId deben ser números válidos" });
+            return res.status(400).json({ error: "IDs deben ser números" });
         }
 
         const usuario = await prisma.usuario.findUnique({ where: { id: uid } });
@@ -63,21 +56,16 @@ exports.createLoan = async (req, res) => {
         if (!libro) return res.status(404).json({ error: "Libro no encontrado" });
         if (!libro.disponible) return res.status(400).json({ error: "El libro ya está prestado" });
 
-        const p = await prisma.prestamo.create({
-            data: { usuarioId: uid, libroId: lid }
-        });
-
+        const p = await prisma.prestamo.create({ data: { usuarioId: uid, libroId: lid } });
         await prisma.libro.update({ where: { id: lid }, data: { disponible: false } });
 
-        const prestamo = await enriquecerPrestamo(p);
-        res.status(201).json({ mensaje: "Préstamo realizado correctamente", prestamo });
+        res.status(201).json({ mensaje: "Préstamo realizado", prestamo: await enriquecerPrestamo(p) });
     } catch (error) {
         console.error("createLoan error:", error);
         res.status(500).json({ error: error.message });
     }
 };
 
-// Devolver préstamo
 exports.updateLoan = async (req, res) => {
     try {
         const id = Number(req.params.id);
@@ -88,30 +76,21 @@ exports.updateLoan = async (req, res) => {
             where: { id },
             data: { estado: "DEVUELTO", fechaDevolucion: new Date() }
         });
-
         await prisma.libro.update({ where: { id: p.libroId }, data: { disponible: true } });
 
-        const prestamo = await enriquecerPrestamo(actualizado);
-        res.json({ mensaje: "Libro devuelto correctamente", prestamo });
+        res.json({ mensaje: "Libro devuelto", prestamo: await enriquecerPrestamo(actualizado) });
     } catch (error) {
         console.error("updateLoan error:", error);
         res.status(500).json({ error: error.message });
     }
 };
 
-// Eliminar préstamo
 exports.deleteLoan = async (req, res) => {
     try {
         await prisma.prestamo.delete({ where: { id: Number(req.params.id) } });
-        res.json({ mensaje: "Préstamo eliminado correctamente" });
+        res.json({ mensaje: "Préstamo eliminado" });
     } catch (error) {
         console.error("deleteLoan error:", error);
         res.status(500).json({ error: error.message });
     }
 };
-'''
-
-with open('/mnt/agents/output/loanController.js', 'w', encoding='utf-8') as f:
-    f.write(loan_controller)
-
-print(f"Archivo generado: {len(loan_controller)} caracteres, {loan_controller.count(chr(10))} líneas")

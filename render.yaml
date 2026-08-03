@@ -1,16 +1,6 @@
-# Generar render.yaml mejorado
-render_yaml = '''services:
+services:
   - type: web
     name: biblioteca-microservices
     env: node
-    buildCommand: |
-      npm install
-      npx prisma generate --schema=./prisma/schema.prisma
-      npx prisma db push --schema=./prisma/schema.prisma --accept-data-loss
+    buildCommand: npm install
     startCommand: npm start
-'''
-
-with open('/mnt/agents/output/render.yaml', 'w', encoding='utf-8') as f:
-    f.write(render_yaml)
-
-print("Archivos generados correctamente")

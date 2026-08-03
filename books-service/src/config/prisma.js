@@ -1,12 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 
-require("dotenv").config();
-
-console.log(
-    "DATABASE USERS:",
-    process.env.DATABASE_URL ? "OK" : "NO EXISTE"
-);
-
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+    log: process.env.NODE_ENV === "development" ? ["query", "error"] : ["error"]
+});
 
 module.exports = prisma;
