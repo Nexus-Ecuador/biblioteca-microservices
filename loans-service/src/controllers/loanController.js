@@ -1,12 +1,11 @@
-const axios = require("axios");
 const prisma = require("../config/prisma");
-require("dotenv").config();
 
 // Obtener todos los préstamos
 exports.getLoans = async (req, res) => {
     try {
         const loans = await prisma.prestamo.findMany({
-            include: { usuario: true, libro: true }   // ✅ Trae nombres
+            include: { usuario: true, libro: true },
+            orderBy: { id: "asc" }
         });
         res.json(loans);
     } catch (error) {
@@ -37,6 +36,7 @@ exports.getLoanById = async (req, res) => {
 exports.createLoan = async (req, res) => {
     try {
         const { usuarioId, libroId } = req.body;
+
         if (!usuarioId || !libroId) {
             return res.status(400).json({
                 error: "usuarioId y libroId son obligatorios"
@@ -46,16 +46,27 @@ exports.createLoan = async (req, res) => {
         const uid = Number(usuarioId);
         const lid = Number(libroId);
 
-        // Verificar usuario
-        const usuarioRes = await axios.get(
-            `${process.env.USER_SERVICE}/api/users/${uid}`
-        );
+        if (isNaN(uid) || isNaN(lid)) {
+            return res.status(400).json({
+                error: "usuarioId y libroId deben ser números válidos"
+            });
+        }
 
-        // Verificar libro
-        const libroRes = await axios.get(
-            `${process.env.BOOK_SERVICE}/api/books/${lid}`
-        );
-        const libro = libroRes.data;
+        // ✅ Verificar usuario directamente con Prisma (sin axios)
+        const usuario = await prisma.usuario.findUnique({
+            where: { id: uid }
+        });
+        if (!usuario) {
+            return res.status(404).json({ error: "Usuario no encontrado" });
+        }
+
+        // ✅ Verificar libro directamente con Prisma (sin axios)
+        const libro = await prisma.libro.findUnique({
+            where: { id: lid }
+        });
+        if (!libro) {
+            return res.status(404).json({ error: "Libro no encontrado" });
+        }
 
         if (!libro.disponible) {
             return res.status(400).json({
@@ -69,11 +80,11 @@ exports.createLoan = async (req, res) => {
             include: { usuario: true, libro: true }
         });
 
-        // Marcar libro como no disponible
-        await axios.put(
-            `${process.env.BOOK_SERVICE}/api/books/${lid}`,
-            { disponible: false }
-        );
+        // ✅ Marcar libro como no disponible directamente con Prisma
+        await prisma.libro.update({
+            where: { id: lid },
+            data: { disponible: false }
+        });
 
         res.status(201).json({
             mensaje: "Préstamo realizado correctamente",
@@ -82,7 +93,7 @@ exports.createLoan = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({
-            error: error.response?.data?.error || error.response?.data || error.message
+            error: error.message
         });
     }
 };
@@ -108,11 +119,11 @@ exports.updateLoan = async (req, res) => {
             include: { usuario: true, libro: true }
         });
 
-        // ✅ BUG CORREGIDO: URL bien formada
-        await axios.put(
-            `${process.env.BOOK_SERVICE}/api/books/${prestamo.libroId}`,
-            { disponible: true }
-        );
+        // ✅ Liberar libro directamente con Prisma
+        await prisma.libro.update({
+            where: { id: prestamo.libroId },
+            data: { disponible: true }
+        });
 
         res.json({
             mensaje: "Libro devuelto correctamente",
@@ -120,9 +131,7 @@ exports.updateLoan = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({
-            error: error.response?.data?.error || error.response?.data || error.message
-        });
+        res.status(500).json({ error: error.message });
     }
 };
 
