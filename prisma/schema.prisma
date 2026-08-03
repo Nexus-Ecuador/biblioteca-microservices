@@ -9,11 +9,11 @@ datasource db {
 }
 
 model Usuario {
-  id     Int    @id @default(autoincrement())
-  nombre String
-  correo String @unique
-  cedula String @unique
-
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  correo    String   @unique
+  cedula    String   @unique
+  createdAt DateTime @default(now())   // ✅ NUEVO
   prestamos Prestamo[]
 }
 
@@ -24,8 +24,7 @@ model Libro {
   isbn       String  @unique
   categoria  String?
   disponible Boolean @default(true)
-
-  prestamos Prestamo[]
+  prestamos  Prestamo[]
 }
 
 model Prestamo {

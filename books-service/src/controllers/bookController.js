@@ -1,17 +1,68 @@
 const prisma = require("../config/prisma");
 
-
-// Obtener todos los libros
+// =======================================================
+// OBTENER TODOS LOS LIBROS
+// =======================================================
 exports.getBooks = async (req, res) => {
-
     try {
 
-        const libros = await prisma.libro.findMany();
+        const libros = await prisma.libro.findMany({
+            orderBy: {
+                id: "asc"
+            }
+        });
 
         res.json(libros);
 
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error: error.message
+        });
+
+    }
+};
+
+// =======================================================
+// OBTENER LIBRO POR ID
+// =======================================================
+exports.getBookById = async (req, res) => {
+
+    try {
+
+        const id = Number(req.params.id);
+
+        if (isNaN(id)) {
+
+            return res.status(400).json({
+                error: "ID inválido"
+            });
+
+        }
+
+        const libro = await prisma.libro.findUnique({
+
+            where: {
+                id
+            }
+
+        });
+
+        if (!libro) {
+
+            return res.status(404).json({
+                error: "Libro no encontrado"
+            });
+
+        }
+
+        res.json(libro);
 
     } catch (error) {
+
+        console.error(error);
 
         res.status(500).json({
             error: error.message
@@ -21,142 +72,159 @@ exports.getBooks = async (req, res) => {
 
 };
 
-
-
-// Obtener libro por ID
-exports.getBookById = async (req, res) => {
+// =======================================================
+// CREAR LIBRO
+// =======================================================
+exports.createBook = async (req, res) => {
 
     try {
 
-        const { id } = req.params;
+        const {
+            titulo,
+            autor,
+            isbn,
+            categoria,
+            disponible
+        } = req.body;
 
+        if (!titulo || !autor) {
 
-        const libro = await prisma.libro.findUnique({
-            where:{
-                id:Number(id)
-            }
-        });
-
-
-        if(!libro){
-
-            return res.status(404).json({
-                error:"Libro no encontrado"
+            return res.status(400).json({
+                error: "Título y autor son obligatorios"
             });
 
         }
 
-
-        res.json(libro);
-
-
-    } catch(error){
-
-        res.status(500).json({
-            error:error.message
-        });
-
-    }
-
-};
-
-
-
-// Crear libro
-exports.createBook = async (req,res)=>{
-
-    try{
-
-
         const libro = await prisma.libro.create({
 
-            data:req.body
+            data: {
 
-        });
+                titulo,
+                autor,
 
+                isbn: isbn || null,
 
-        res.status(201).json({
+                categoria: categoria || null,
 
-            mensaje:"Libro creado correctamente",
-            libro
+                disponible:
+                    disponible === undefined
+                        ? true
+                        : disponible
 
-        });
-
-
-    }catch(error){
-
-        res.status(500).json({
-            error:error.message
-        });
-
-    }
-
-};
-
-
-
-// Actualizar libro
-exports.updateBook = async(req,res)=>{
-
-    try{
-
-        const {id}=req.params;
-
-
-        const libro = await prisma.libro.update({
-
-            where:{
-                id:Number(id)
-            },
-
-            data:req.body
-
-        });
-
-
-        res.json(libro);
-
-
-
-    }catch(error){
-
-        res.status(500).json({
-            error:error.message
-        });
-
-    }
-
-};
-
-
-
-// Eliminar libro
-exports.deleteBook = async(req,res)=>{
-
-
-    try{
-
-        const {id}=req.params;
-
-
-        await prisma.libro.delete({
-
-            where:{
-                id:Number(id)
             }
 
         });
 
+        res.status(201).json({
 
-        res.json({
-            mensaje:"Libro eliminado"
+            mensaje: "Libro creado correctamente",
+
+            libro
+
         });
 
+    } catch (error) {
 
-    }catch(error){
+        console.error(error);
 
         res.status(500).json({
-            error:error.message
+
+            error: error.message
+
+        });
+
+    }
+
+};
+
+// =======================================================
+// ACTUALIZAR LIBRO
+// =======================================================
+exports.updateBook = async (req, res) => {
+
+    try {
+
+        const id = Number(req.params.id);
+
+        if (isNaN(id)) {
+
+            return res.status(400).json({
+                error: "ID inválido"
+            });
+
+        }
+
+        const libro = await prisma.libro.update({
+
+            where: {
+                id
+            },
+
+            data: req.body
+
+        });
+
+        res.json({
+
+            mensaje: "Libro actualizado correctamente",
+
+            libro
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+
+            error: error.message
+
+        });
+
+    }
+
+};
+
+// =======================================================
+// ELIMINAR LIBRO
+// =======================================================
+exports.deleteBook = async (req, res) => {
+
+    try {
+
+        const id = Number(req.params.id);
+
+        if (isNaN(id)) {
+
+            return res.status(400).json({
+                error: "ID inválido"
+            });
+
+        }
+
+        await prisma.libro.delete({
+
+            where: {
+                id
+            }
+
+        });
+
+        res.json({
+
+            mensaje: "Libro eliminado correctamente"
+
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+
+            error: error.message
+
         });
 
     }
