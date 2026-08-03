@@ -1,5 +1,4 @@
-# Generar schema.prisma completo
-schema = '''generator client {
+generator client {
   provider = "prisma-client-js"
 }
 
@@ -39,7 +38,3 @@ model Prestamo {
   usuario Usuario @relation(fields: [usuarioId], references: [id])
   libro   Libro   @relation(fields: [libroId], references: [id])
 }
-'''
-
-with open('/mnt/agents/output/schema.prisma', 'w', encoding='utf-8') as f:
-    f.write(schema)
