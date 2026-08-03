@@ -1,34 +1,12 @@
-generator client {
-  provider = "prisma-client-js"
-}
+const { PrismaClient } = require("@prisma/client");
 
-datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
-}
+require("dotenv").config();
 
-model Usuario {
-  id      Int    @id @default(autoincrement())
-  nombre  String
-  correo  String @unique
-  cedula  String @unique
-}
+console.log(
+    "DATABASE USERS:",
+    process.env.DATABASE_URL ? "OK" : "NO EXISTE"
+);
 
-model Libro {
-  id          Int     @id @default(autoincrement())
-  titulo      String
-  autor       String
-  isbn        String  @unique
-  categoria   String?
-  disponible  Boolean @default(true)
-}
+const prisma = new PrismaClient();
 
-model Prestamo {
-  id              Int       @id @default(autoincrement())
-  usuarioId       Int
-  libroId         Int
-  fechaPrestamo   DateTime  @default(now())
-  fechaDevolucion DateTime?
-  estado          String    @default("PRESTADO")
-}
+module.exports = prisma;

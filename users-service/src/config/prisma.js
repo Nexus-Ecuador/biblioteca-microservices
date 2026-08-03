@@ -1,7 +1,11 @@
 const { PrismaClient } = require("@prisma/client");
 
-console.log("DATABASE_URL =", process.env.DATABASE_URL);
-console.log("DIRECT_URL =", process.env.DIRECT_URL);
+require("dotenv").config();
+
+console.log(
+    "DATABASE USERS:",
+    process.env.DATABASE_URL ? "OK" : "NO EXISTE"
+);
 
 const prisma = new PrismaClient();
 

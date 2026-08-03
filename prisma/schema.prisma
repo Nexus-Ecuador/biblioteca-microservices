@@ -9,19 +9,23 @@ datasource db {
 }
 
 model Usuario {
-  id      Int    @id @default(autoincrement())
-  nombre  String
-  correo  String @unique
-  cedula  String @unique
+  id     Int    @id @default(autoincrement())
+  nombre String
+  correo String @unique
+  cedula String @unique
+
+  prestamos Prestamo[]
 }
 
 model Libro {
-  id          Int     @id @default(autoincrement())
-  titulo      String
-  autor       String
-  isbn        String  @unique
-  categoria   String?
-  disponible  Boolean @default(true)
+  id         Int     @id @default(autoincrement())
+  titulo     String
+  autor      String
+  isbn       String  @unique
+  categoria  String?
+  disponible Boolean @default(true)
+
+  prestamos Prestamo[]
 }
 
 model Prestamo {
@@ -31,4 +35,7 @@ model Prestamo {
   fechaPrestamo   DateTime  @default(now())
   fechaDevolucion DateTime?
   estado          String    @default("PRESTADO")
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+  libro   Libro   @relation(fields: [libroId], references: [id])
 }

@@ -146,7 +146,7 @@ exports.updateLoan = async (req, res) => {
         // Liberar libro
         await axios.put(
 
-            `http://localhost:3002/api/books/${prestamo.libroId}`,
+            `process.env.BOOK_SERVICE/${prestamo.libroId}`,
 
             {
                 disponible: true
