@@ -1,13 +1,19 @@
 {
   "name": "biblioteca-microservices",
+  "_comment_name": "Nombre del proyecto en el ecosistema Node.js",
+
   "version": "1.0.0",
   "description": "Sistema de biblioteca con microservicios",
   "main": "server.js",
+
   "scripts": {
+    "_comment_postinstall": "Genera el cliente de Prisma tras la instalación",
     "postinstall": "npx prisma generate --schema=./prisma/schema.prisma",
     "start": "node server.js"
   },
+
   "dependencies": {
+    "_comment_prisma": "ORM para consultar la base de datos PostgreSQL",
     "@prisma/client": "^6.0.0",
     "axios": "^1.6.0",
     "cors": "^2.8.5",

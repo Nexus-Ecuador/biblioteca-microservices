@@ -1,39 +1,56 @@
+// ==========================================
+// CONFIGURACIÓN DEL GENERADOR Y BASE DE DATOS
+// ==========================================
+
+// Define el cliente de Prisma que se generará para interactuar con la base de datos desde JavaScript/TypeScript
 generator client {
   provider = "prisma-client-js"
 }
 
+// Configura la conexión a la base de datos PostgreSQL mediante variables de entorno
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  url       = env("DATABASE_URL") // URL de conexión principal (con connection pooling si aplica)
+  directUrl = env("DIRECT_URL")   // URL de conexión directa (útil para migraciones en plataformas como Supabase o Neon)
 }
 
+// ==========================================
+// MODELOS DE LA BASE DE DATOS
+// ==========================================
+
+// Modelo que representa la tabla de Usuarios en la base de datos
 model Usuario {
-  id        Int    @id @default(autoincrement())
-  nombre    String
-  correo    String @unique
-  cedula    String @unique
-  prestamos Prestamo[]
+  id        Int        @id @default(autoincrement()) // Clave primaria, autoincrementable
+  nombre    String                                   // Nombre completo del usuario
+  correo    String     @unique                        // Correo electrónico único (no permite duplicados)
+  cedula    String     @unique                        // Documento de identidad único (no permite duplicados)
+  prestamos Prestamo[]                               // Relación uno-a-muchos: Un usuario puede tener múltiples préstamos
 }
 
+// Modelo que representa la tabla de Libros
 model Libro {
-  id         Int     @id @default(autoincrement())
-  titulo     String
-  autor      String
-  isbn       String? @unique
-  categoria  String?
-  disponible Boolean @default(true)
-  prestamos  Prestamo[]
+  id         Int        @id @default(autoincrement()) // Clave primaria, autoincrementable
+  titulo     String                                   // Título del libro
+  autor      String                                   // Autor del libro
+  isbn       String?    @unique                       // Código ISBN opcional (?) y único
+  categoria  String?                                  // Categoría o género opcional (?)
+  disponible Boolean    @default(true)                // Estado de disponibilidad, por defecto está disponible (true)
+  prestamos  Prestamo[]                               // Relación uno-a-muchos: Un libro puede registrarse en múltiples préstamos
 }
 
+// Modelo que representa la tabla de Préstamos (tabla intermedia/transaccional)
 model Prestamo {
-  id              Int       @id @default(autoincrement())
-  usuarioId       Int
-  libroId         Int
-  fechaPrestamo   DateTime  @default(now())
-  fechaDevolucion DateTime?
-  estado          String    @default("PRESTADO")
+  id              Int       @id @default(autoincrement()) // Clave primaria, autoincrementable
+  usuarioId       Int                                     // Clave foránea que referencia al Usuario
+  libroId         Int                                     // Clave foránea que referencia al Libro
+  fechaPrestamo   DateTime  @default(now())               // Fecha y hora del préstamo, por defecto la fecha/hora actual
+  fechaDevolucion DateTime?                               // Fecha de devolución opcional (?) (se llena al devolver)
+  estado          String    @default("PRESTADO")          // Estado del préstamo, por defecto "PRESTADO"
 
+  // DEFINICIÓN DE RELACIONES (Claves foráneas)
+  // Enlaza la columna 'usuarioId' con la columna 'id' del modelo Usuario
   usuario Usuario @relation(fields: [usuarioId], references: [id])
+  
+  // Enlaza la columna 'libroId' con la columna 'id' del modelo Libro
   libro   Libro   @relation(fields: [libroId], references: [id])
 }
